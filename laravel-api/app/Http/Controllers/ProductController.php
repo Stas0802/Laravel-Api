@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Filters\FilterProduct;
 use App\Http\Requests\ProductRequest;
 use App\Http\Requests\UpdateProductRequest;
 use App\Models\Product;
@@ -13,9 +14,16 @@ class ProductController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        return response()->json(Product::all());
+        $products = (new FilterProduct($request))->apply();
+        if($products->isEmpty()){
+            return response()->json([
+                'message' => 'Product not found',
+                'data' => [],
+            ], 404);
+        }
+        return response()->json($products);
     }
 
     /**
